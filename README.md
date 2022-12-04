@@ -16,6 +16,7 @@ and any combination of these transformations for a point (with matrix)
 ```bash
 x abscissa of the original point
 y ordinate of the original point
+
 transfo arg1 [arg2]
 -t i j translation along vector (i, j)
 -z m n scaling by factors m (x-axis) and n (y-axis)
