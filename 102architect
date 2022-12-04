@@ -1,0 +1,315 @@
+#!/usr/bin/env python3
+##
+## EPITECH PROJECT, 2022
+## B-MAT-100-PAR-1-1-102architect-yanis.djeridi
+## File description:
+## bsarchi.py
+##
+
+from math import *
+import sys
+import numpy
+
+class Matrix():
+    def __init__(self, nb_rows, nb_col):
+        self.nb_rows = nb_rows
+        self.nb_col = nb_col
+        self.data = []
+    def resize_data(self):
+        i = 0
+        j = 0
+        while j < self.nb_rows:
+            i = 0
+            self.data.append([])
+            while i < self.nb_col:
+                self.data[j].append(0)
+                i += 1
+            j += 1
+    def print_matrix(self):
+        i = 0
+        j = 0
+        while i < self.nb_rows:
+            j = 0
+            while j < self.nb_col:
+                if (self.data[i][j] < 0.001 and self.data[i][j] > -0.001):
+                    self.data[i][j] = 0
+                if (j < self.nb_col - 1):
+                    print("{:.2f}".format(self.data[i][j]), end="\t")
+                else:
+                    print("{:.2f}".format(self.data[i][j]), end="")
+                j += 1
+            print()
+            i += 1
+    def id_matrix(self):
+        i = 0
+        if self.nb_rows == self.nb_col:
+            while i < self.nb_rows:
+                self.data[i][i] = 1
+                i += 1
+
+class Vector():
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+        self.z = 1
+        self.coords = Matrix(3, 1)
+        self.coords.resize_data()
+        self.coords.data[0][0] = self.x
+        self.coords.data[1][0] = self.y
+        self.coords.data[2][0] = self.z
+    def get_coordinates(self):
+        return self.coords
+
+
+def create_translation_Matrix(vector_x, vector_y, nb_rows, nb_col):
+    resulting_matrix = Matrix(nb_rows, nb_col)
+    resulting_matrix.resize_data()
+    i = 0
+    j = 0
+    while i < resulting_matrix.nb_rows:
+        j = 0
+        while j < resulting_matrix.nb_col:
+            resulting_matrix.data[i][j] = 1
+            j += 1
+            i += 1
+    resulting_matrix.data[0][resulting_matrix.nb_col - 1] += vector_x
+    resulting_matrix.data[1][resulting_matrix.nb_col - 1] += vector_y
+    return resulting_matrix
+
+def error_case_coordinate():
+
+    try:
+        float(sys.argv[1])
+        float(sys.argv[2])
+    except ValueError:
+        sys.exit(84)
+    try:
+        float(sys.argv[3])
+    except ValueError:
+        pass
+    else:
+        sys.exit(84)
+    if (sys.argv[3] != "-s" and sys.argv[3] != "-t" and sys.argv[3] != "-z" and sys.argv[3] != "-r"):
+        sys.exit(84)
+
+def error_case_two_argv(i, argc):
+
+    try:
+        float(sys.argv[i + 1])
+        float(sys.argv[i + 2])
+    except ValueError:
+        sys.exit(84)
+    if (i + 3 < argc):
+        if (sys.argv[i + 3] != "-s" and sys.argv[i + 3] != "-t" and sys.argv[i + 3] != "-z" and sys.argv[i + 3] != "-r"):
+            sys.exit(84)
+
+def error_case_one_argv(i, argc):
+
+    try:
+        float(sys.argv[i + 1])
+    except ValueError:
+        sys.exit(84)
+    if (i + 2 < argc):
+        if (sys.argv[i + 2] != "-s" and sys.argv[i + 2] != "-t" and sys.argv[i + 2] != "-z" and sys.argv[i + 2] != "-r"):
+            sys.exit(84)
+
+def print_translation_message(i):
+
+    print("Translation along vector (", end="")
+    print(sys.argv[i + 1], end="")
+    print(",", end=" ")
+    print(sys.argv[i + 2], end="")
+    print(")")
+
+def print_scaling_message(i):
+
+    print("Scaling by factors ", end="")
+    print(sys.argv[i + 1], end="")
+    print(" and ", end="")
+    print(sys.argv[i + 2])
+
+def print_reflection_message(i):
+
+    print("Reflection over an axis with an inclination angle of ", end="")
+    print(sys.argv[i + 1], end=" ")
+    print("degrees")
+
+def print_rotation_message(i):
+
+    print("Rotation by a ", end="")
+    print(sys.argv[i + 1], end=" ")
+    print("degree angle")
+
+def matrix_multiplication(matrix1, matrix2):
+
+    x = 0
+    y = 0
+    if matrix1.nb_col != matrix2.nb_rows:
+        exit(84)
+    x = matrix1.nb_rows
+    y = matrix2.nb_col
+    data = []
+    for i in range(0, x):
+        temp = []
+        for j in range(0, y):
+            line_sum = 0
+            for k in range(0, x):
+                a = matrix1.data[i][k]
+                b = matrix2.data[k][j]
+                line_sum += a * b
+            temp.append(line_sum)
+        data.append(temp)
+    result_matrix = Matrix(x, y)
+    result_matrix.data = data
+    return result_matrix
+
+def create_scaling_matrix(vector_x, vector_y, nb_rows, nb_col):
+
+    resulting_matrix = Matrix(nb_rows, nb_col)
+    resulting_matrix.resize_data()
+    i = 0
+    j = 0
+    list1 = [vector_x, vector_y]
+    while i < nb_rows - 1:
+        j = 0
+        while j < nb_col - 1:
+            resulting_matrix.data[i][j] = list1[i]
+            j += 1
+            i += 1
+    resulting_matrix.data[nb_rows - 1][nb_col - 1] = 1
+    return resulting_matrix
+
+def deg_to_rad(angle):
+    angle = (angle * pi) / 180
+    return angle
+
+def rad_to_deg(angle):
+    angle = (angle * 180) / pi
+    return angle
+
+def get_cos(angle):
+    angle = cos(deg_to_rad(angle))
+    return angle
+
+def get_sin(angle):
+    angle = sin(deg_to_rad(angle))
+    return angle
+
+def create_rotating_matrix(angle, nb_rows, nb_col):
+    resulting_matrix = Matrix(nb_rows, nb_col)
+    resulting_matrix.resize_data()
+    i = 0
+    j = 0
+    a = get_cos(angle)
+    b = get_sin(angle) * (-1)
+    d = get_cos(angle)
+    c = get_sin(angle)
+    list1 = [a, b, c, d]
+    k = 0
+    while i < nb_rows - 1:
+        j = 0
+        while j < nb_col - 1:
+            resulting_matrix.data[i][j] = list1[k]
+            j += 1
+            k += 1
+        i += 1
+    resulting_matrix.data[nb_rows - 1][nb_col - 1] = 1
+    return resulting_matrix
+
+def create_reflection_matrix(angle, nb_rows, nb_col):
+
+    resulting_matrix = Matrix(nb_rows, nb_col)
+    resulting_matrix.resize_data()
+    i = 0
+    j = 0
+    k = 0
+    a = get_cos(2 * angle)
+    b = get_sin(2 * angle)
+    d = get_cos(2 * angle) * (-1)
+    list1 = [a, b, b, d]
+    while i < nb_rows - 1:
+        j = 0
+        while j < nb_col - 1:
+            resulting_matrix.data[i][j] = list1[k]
+            j += 1
+            k += 1
+        i += 1
+    resulting_matrix.data[nb_rows - 1][nb_col - 1] = 1
+    return resulting_matrix
+
+def main():
+
+    i = 3
+    argc = len(sys.argv)
+    if argc < 5:
+        sys.exit(84)
+    error_case_coordinate()
+    base_x = x = float(sys.argv[1])
+    base_y = y = float(sys.argv[2])
+    final_matrix = Matrix(3, 3)
+    final_matrix.resize_data()
+    final_matrix.id_matrix()
+    vector_base = Vector(float(base_x), float(base_y))
+    final_vector = Vector(float(base_x), float(base_y))
+
+    while (i < argc):
+        if sys.argv[i] == "-t":
+            if (i == argc or i + 2 > argc or i + 2 == argc):
+                sys.exit(84)
+            error_case_two_argv(i, argc)
+            la_matrix = create_translation_Matrix(float(sys.argv[i + 1]), float(sys.argv[i + 2]), 3, 3)
+            final_matrix = matrix_multiplication(la_matrix, final_matrix)
+            print_translation_message(i)
+
+        elif sys.argv[i] == "-z":
+            if (i == argc or i + 2 > argc or i + 2 == argc):
+                sys.exit(84)
+            error_case_two_argv(i, argc)
+            matrix_scaling = create_scaling_matrix(float(sys.argv[i + 1]), float(sys.argv[i + 2]), 3, 3)
+            final_matrix = matrix_multiplication(matrix_scaling, final_matrix)
+            print_scaling_message(i)
+
+        elif sys.argv[i] == "-r":
+            if (i == argc or i + 1 > argc):
+                sys.exit(84)
+            if (i + 2 != argc):
+                try:
+                    float(sys.argv[i + 2])
+                except ValueError:
+                    pass
+                else:
+                    sys.exit(84)
+            error_case_one_argv(i, argc)
+            matrix_rotation = create_rotating_matrix(float(sys.argv[i + 1]), 3, 3)
+            final_matrix = matrix_multiplication(matrix_rotation, final_matrix)
+            print_rotation_message(i)
+
+        elif sys.argv[i] == "-s":
+            if (i == argc or i + 1 > argc):
+                sys.exit(84)
+            if (i + 2 != argc):
+                try:
+                    float(sys.argv[i + 2])
+                except ValueError:
+                    pass
+                else:
+                    sys.exit(84)
+            error_case_one_argv(i, argc)
+            matrix_reflection = create_reflection_matrix(float(sys.argv[i + 1]), 3, 3)
+            final_matrix = matrix_multiplication(matrix_reflection, final_matrix)
+
+            print_reflection_message(i)
+        i += 1
+    final_matrix.print_matrix()
+    final_vector.coords = matrix_multiplication(final_matrix, vector_base.get_coordinates())
+    print("(", end="")
+    print("{:.2f}".format(float(base_x)), end=", ")
+    print("{:.2f}".format(float(base_y)), end=") ")
+    print("=>", end=" ")
+    print("(", end="")
+    print("{:.2f}".format(float(final_vector.coords.data[0][0])), end=", ")
+    print("{:.2f}".format(float(final_vector.coords.data[1][0])), end="")
+    print(")")
+
+if __name__ == '__main__':
+    main()
